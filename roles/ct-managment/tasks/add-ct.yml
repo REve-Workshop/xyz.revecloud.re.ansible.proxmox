@@ -14,10 +14,12 @@
     memory: "{{ ct_template.memory }}"
     swap: "{{ ct_template.swap }}"
     pubkey: "{{ ct_template.pubkey }}"
-    netif: "{{ ct_template.netif }}"
+    netif: {'net0': "{{ net0 }}"}
     unprivileged: yes
     storage: "local"
     state: present
+  vars:
+    net0: "name=eth0,gw={{ ct_template.ct_gw }},ip={{ ct_template.ct_ip }}/24,bridge=vmbr1"
 - name: "Start container {{ ct_template.id }} / {{ ct_template.hostname }}"
   proxmox:
     vmid: "{{ ct_template.id }}"
