@@ -1,0 +1,11 @@
+#+TITLE: README - REve Workshop's provisioning management repository
+* Introduction
+  The repository will contains all playbooks and roles to create,
+  remove and edit containers and virtual machines in my
+  infrastructure.
+* Author
+
++ Roland Everaert
+* Copyright
+
+Copyright (c) 2020 Roland Everaert
