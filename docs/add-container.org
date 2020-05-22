@@ -11,7 +11,7 @@
    - =<inventory>=, the path to the inventory file referencing the
      proxmox REST API entry-point host.
    - =<definition_file.yml>=, the path to a file describing the
-     virtual machine to create.
+     container to create.
 
    Creation steps:
    - Calling proxmox to reserve the necessary resources to create the
@@ -21,21 +21,21 @@
      - The Network interface.
      - Creation of a disk
      - Installing an image on the disk.
-   - Start the virtual machine.
+   - Start the container.
    - Install remote acces softwares (SSH server, MoSH)
 
    If the =<inventory>= file contains more than the proxmox REST API
    entry-point host, use the =--limit= option to restrict the list of
-   hosts to loop over for the play.
+   hosts to loop over, for the play.
 
    You need to connect to the host with a user that have the correct
    permission to administer the proxmox cluster.
 
    The user must have, at least, the following permission:
    - Can access the REST API entry-point.
-   - Can run pve* commands.
+   - Can run the =pct= command.
 
-   The following variables needs to be defined for the connection to
+   The following variables need to be defined for the connection to
    the proxmox REST API:
    - =proxmox_cluster_host=: The host of the proxmox cluster to send
      requests to.
@@ -84,8 +84,8 @@
 
    While any image can be used, for installing the remote access
    softwares, only some distributions are supported:
-   - Fedora: =ostype == fedora and ostype >= 30=
-   - CentOS: =ostype == centos and ostype >= 8=
+   - Fedora: ~ostype == fedora and ostype >= 30~
+   - CentOS: ~ostype == centos and ostype >= 8~
 
    Example of container definition file content:
    #+begin_src yaml

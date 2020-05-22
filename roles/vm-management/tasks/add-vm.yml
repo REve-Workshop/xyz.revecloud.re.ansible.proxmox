@@ -12,7 +12,7 @@
     vcpus: "{{ vm_tpl.cpus }}"
     memory: "{{ vm_tpl.memory }}"
     scsihw: "virtio-scsi-pci"
-    net: {'net0': "virtio,bridge=vmbr1"}
+    net: {'net0': "virtio,bridge={{ vm_tpl.bridge }}"}
     ide: "{'ide2': 'templates:iso/{{ vm_tpl.iso }},media=cdrom' }"
     state: present
   register: vm_result

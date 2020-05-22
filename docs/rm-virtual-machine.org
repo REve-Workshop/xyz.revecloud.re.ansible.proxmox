@@ -11,7 +11,7 @@
 
    - =<inventory>=, the path to the inventory file referencing the
      proxmox REST API entry-point host.
-   - =<vm-name>=, the name of the virtual machine to remove
+   - =<vm-name>=, the name of the virtual machine to remove.
 
    If the =<inventory>= file contains more than the proxmox REST API
    entry-point host, use the =--limit= option to restrict the list of
@@ -23,7 +23,7 @@
    The user must have, at least, the following permission:
    - Can access the REST API entry-point.
 
-   The following variables needs to be defined for the connection to
+   The following variables need to be defined for the connection to
    the proxmox REST API:
    - =proxmox_cluster_host=: The host of the proxmox cluster to send
      requests to.

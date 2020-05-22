@@ -35,7 +35,7 @@
   - Can run pve* commands.
   - Can run QEMU commands.
 
-  The following variables needs to be defined for the connection to
+  The following variables need to be defined for the connection to
   the proxmox REST API:
   - =proxmox_cluster_host=: The host of the proxmox cluster to send
     requests to.
@@ -69,6 +69,7 @@
   - =iso=: The name of the ISO file to use to create the VM.
   - =storage=: The name of the proxmox storage to use to host the
     root disk.
+  - =bridge=: The network bridge to link the network interface to.
 
   The ISO file specified will be used to start the process of
   installation of the OS. This process could require interaction with
@@ -84,6 +85,7 @@
     disk_size: "20"
     iso: "Fedora-Xfce-Live-x86_64-31-1.9.iso"
     storage: local
+    bridge: vmbr1
   #+end_src
 * Author
 
