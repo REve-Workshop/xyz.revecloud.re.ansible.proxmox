@@ -1,8 +1,24 @@
 #+TITLE: README - REve Workshop's provisioning management repository
 * Introduction
-  The repository will contains all playbooks and roles to create,
+  The repository contains all playbooks and roles to create,
   remove and edit containers and virtual machines in my
   infrastructure.
+* Content of the repository
+** COMMENT =playbooks/=
+   Location of the ansible playbooks.
+
+   Available playbooks are:
+   - =add-container.yml=
+   - =rm-container.yml=
+   - =add-virtual-machine.yml=
+   - =rm-virtual-machine.yml=
+
+   Read their respective documentation in [[file:docs/][the =docs/= directory]].
+** =roles/=
+   Location of the various roles and tasks used by the playbooks.
+** =docs/=
+   The folder containing all the documentation for the playbooks and
+   roles.
 * Author
 
 + Roland Everaert

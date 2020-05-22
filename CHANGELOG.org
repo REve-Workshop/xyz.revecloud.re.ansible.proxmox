@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [[https://keepachangelog.com/en/1.0.0/][Keep a Changelog]], and this project adheres to [[https://semver.org/spec/v2.0.0.html][Semantic Versioning]].
 
 * Unreleased
-** Added
-   - The documentation of the playbooks.
-** Fixed
-   - The logic to create and remove virtual machines.
 * [0.1.0] 2020-05-15
 ** Added
    - This file.
 * [0.1.1] 2020-05-17
 ** Added
    - The =README.org= file.
+* [0.2.0] 2020-05-21
+** Added
+   - The documentation of the playbooks.
+** Fixed
+   - The logic to create and remove virtual machines.

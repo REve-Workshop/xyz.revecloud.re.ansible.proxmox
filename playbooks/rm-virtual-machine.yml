@@ -2,11 +2,7 @@
 - hosts: all
   gather_facts: False
   tasks:
-    - name: Get Virtual Machine definition from file
-      include_vars:
-        file: "{{ vm_def_file }}"
-        name: vm_template
     - name: "Remove virtual machine from Proxmox - Cluster {{ proxmox_cluster_host }} / Node {{ proxmox_node }}"
       include_role:
-        name: vm-managment
+        name: vm-management
         tasks_from: rm-vm

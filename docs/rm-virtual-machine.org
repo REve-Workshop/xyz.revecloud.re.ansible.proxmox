@@ -1,0 +1,53 @@
+#+TITLE: Playbook =rm-virtual-machine=
+* Usage
+** Synopsis
+   #+begin_src shell
+     ansible-playbook -i <inventory> rm-virtual-machine.yml -e "hostname=<vm-name>"
+   #+end_src
+** Description
+   This playbook remove a virtual machine and free all its allocated
+   resources (disk, memory, cpus, ...), from a proxmox virtualization
+   environment.
+
+   - =<inventory>=, the path to the inventory file referencing the
+     proxmox REST API entry-point host.
+   - =<vm-name>=, the name of the virtual machine to remove
+
+   If the =<inventory>= file contains more than the proxmox REST API
+   entry-point host, use the =--limit= option to restrict the list of
+   hosts to loop over for the play.
+
+   You need to connect to the host with a user that have the correct
+   permission to administer the proxmox cluster.
+
+   The user must have, at least, the following permission:
+   - Can access the REST API entry-point.
+
+   The following variables needs to be defined for the connection to
+   the proxmox REST API:
+   - =proxmox_cluster_host=: The host of the proxmox cluster to send
+     requests to.
+   - =proxmox_node=: The node where the VM is hosted.
+   - =proxmox_user=: The proxmox user that will perform the action.
+   - =proxmox_password=: the proxmox user's password.
+   - =proxmox_pool=: The proxmox resource pool of the VM.
+
+   As those variables will not change across runs, a good place to set
+   them is in the =host_vars= file of the proxmox host. The only
+   exception is =proxmox_pool=, each VM can be in a different resource
+   pool, following there usage.
+
+   Example of =host_vars= file content:
+   #+begin_src yaml
+     proxmox_cluster_host: localhost
+     proxmox_node: node1
+     proxmox_user: root@pam
+     proxmox_password: "my secret pwd"
+     proxmox_pool: "cesspool"
+   #+end_src
+* Author
+
++ Roland Everaert
+* Copyright
+
+Copyright (c) 2020 Roland Everaert

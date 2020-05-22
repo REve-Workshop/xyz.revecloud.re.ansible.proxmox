@@ -1,0 +1,114 @@
+#+TITLE: Playbook =add-container=
+* Usage
+** Synopsis
+   #+begin_src shell
+     ansible-playbook -i <inventory> add-container.yml -e "ct_def_file=<definition_file.yml>"
+   #+end_src
+** Description
+   This playbook allows to create an LXC container with one disk and
+   one network interface, on a proxmox virtualization environment.
+
+   - =<inventory>=, the path to the inventory file referencing the
+     proxmox REST API entry-point host.
+   - =<definition_file.yml>=, the path to a file describing the
+     virtual machine to create.
+
+   Creation steps:
+   - Calling proxmox to reserve the necessary resources to create the
+     container
+     - CPU.
+     - Memory.
+     - The Network interface.
+     - Creation of a disk
+     - Installing an image on the disk.
+   - Start the virtual machine.
+   - Install remote acces softwares (SSH server, MoSH)
+
+   If the =<inventory>= file contains more than the proxmox REST API
+   entry-point host, use the =--limit= option to restrict the list of
+   hosts to loop over for the play.
+
+   You need to connect to the host with a user that have the correct
+   permission to administer the proxmox cluster.
+
+   The user must have, at least, the following permission:
+   - Can access the REST API entry-point.
+   - Can run pve* commands.
+
+   The following variables needs to be defined for the connection to
+   the proxmox REST API:
+   - =proxmox_cluster_host=: The host of the proxmox cluster to send
+     requests to.
+   - =proxmox_node=: The node where the container must be created.
+   - =proxmox_user=: The proxmox user that will perform the action.
+   - =proxmox_password=: the proxmox user's password.
+   - =proxmox_pool=: The proxmox resource pool where the container will be
+     affected.
+
+   As those variables will not change across runs, a good place to set
+   them is in the =host_vars= file of the proxmox host. The only
+   exception is =proxmox_pool=, each container can be in a different
+   resource pool, following there usage.
+
+   Example of =host_vars= file content:
+   #+begin_src yaml
+     proxmox_cluster_host: localhost
+     proxmox_node: node1
+     proxmox_user: root@pam
+     proxmox_password: "my secret pwd"
+     proxmox_pool: "cesspool"
+   #+end_src
+
+   The =<definition_file.yml>= must contain the following
+   variables:
+   - =hostname=: The name of the container to create.
+   - =root_pwd=: The password to set for the root user of the
+     container.
+   - =cpus=: The number of cpus to allocate.
+   - =memory=: The size of the memory (in Mb) to allocate.
+   - =swap=: The amount of swap (in Mb) to allocate.
+   - =disk=: The size of the root disk (in Gb).
+   - =image=: The name of the container image to use to create the
+     container.
+   - =ostype=: The OS distribution in the image.
+   - =osver=: The version of the OS distribution in the image.
+   - =storage=: The name of the proxmox storage to use to host the
+     root disk.
+   - =pubkey=: The SSH public key, to install, in the root user account,
+     to allow remote connection without password.
+   - =gw=: The gateway of the network interface.
+   - =ip=: The ip address to attach to the network interface.
+   - =subnet=: The subnet of the ip range.
+   - =bridge=: The network bridge, set in proxmox, to link the network
+     interface to.
+
+   While any image can be used, for installing the remote access
+   softwares, only some distributions are supported:
+   - Fedora: =ostype == fedora and ostype >= 30=
+   - CentOS: =ostype == centos and ostype >= 8=
+
+   Example of container definition file content:
+   #+begin_src yaml
+     ---
+     root_pwd: "root secret"
+     hostname: ct-fc31-test
+     image: "templates:vztmpl/fedora-31-default_20191029_amd64.tar.xz"
+     ostype: fedora
+     osver: 31
+     cpus: 1
+     memory: 1024
+     swap: 512
+     disk: 10
+     pubkey: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCs8ZNKpmkYtWA35Kmp+nXWw5BOdALCRG0zT1YVWCFRBClfLz02rq85wsEDQ/hhKn/I5XaeuJG55x92+3CG1mtUb8Y9yzIZpaEhQmkCNaZ9vGUzMW601tyA/bP30JE22dYAFX9ZauH434w/F88jBagv86PEzinc5IUlTh/X4CYyHHGKCuGRGmADERY4qzhgTq0SepXAQAYHaWwalwq95Niapq0AoICsEaHD6EmRxcB8xa7fQROn8vcOHp1wzP3SA4Gwo9rgJcGTleDLRN5OE7oR8w6Dl7IRLhpXap+MC9i0zxD5DZc8AbO9FOWDdBcBymkuOtKYAAVzcDwTOlKKWozUnU7rjXaOFeAg6Vg//pK1f9ejWx2zZyK6mWa2ELEKkpu81ythOKicmSNsxJ92PHCh6UrTBtbiuFYJZywfxkYhWA0C8XQT2BSB8dQ9Km/O0/Ug6QRdopyUrbvlreSwO4yA+rTMMbThrPJaA/ASPUm5nPrCjCAi+QNA/4xKh7zSJwU="
+     storage: local
+     gw: 10.10.10.1
+     ip: 10.10.10.101
+     bridge: vmbr1
+     subnet: 24
+   #+end_src
+* Author
+
++ Roland Everaert
+* Copyright
+
+Copyright (c) 2020 Roland Everaert

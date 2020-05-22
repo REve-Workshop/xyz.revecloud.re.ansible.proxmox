@@ -1,0 +1,6 @@
+supported_os_type:
+  - centos
+  - fedora
+supported_min_os_ver:
+  centos: 8
+  fedora: 30

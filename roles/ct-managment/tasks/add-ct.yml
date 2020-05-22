@@ -1,6 +1,5 @@
-- name: "Create new unpriviledged container {{ ct_template.id }} / {{ ct_template.hostname }}"
+- name: "Create new unpriviledged container {{ ct_template.hostname }}"
   proxmox:
-    vmid: "{{ ct_template.id }}"
     api_user: "{{ proxmox_user }}"
     api_password: "{{ proxmox_password }}"
     api_host: "{{ proxmox_cluster_host }}"
@@ -16,22 +15,79 @@
     pubkey: "{{ ct_template.pubkey }}"
     netif: {'net0': "{{ net0 }}"}
     unprivileged: yes
-    storage: "local"
+    storage: "{{ ct_template.storage }}"
     state: present
+  register: ct_res
   vars:
-    net0: "name=eth0,gw={{ ct_template.ct_gw }},ip={{ ct_template.ct_ip }}/24,bridge=vmbr1"
-- name: "Start container {{ ct_template.id }} / {{ ct_template.hostname }}"
-  proxmox:
-    vmid: "{{ ct_template.id }}"
-    api_user: "{{ proxmox_user }}"
-    api_password: "{{ proxmox_password }}"
-    api_host: "{{ proxmox_cluster_host }}"
-    node: "{{ proxmox_node }}"
-    pool: "{{ proxmox_pool }}"
-    state: started
-- name: Install SSH server
-  shell: 'pct exec {{ ct_template.id }} -- bash -c "dnf -y install openssh-server"'
-- name: Enable and start SSH server
-  shell: 'pct exec {{ ct_template.id }} -- bash -c "systemctl enable sshd && systemctl start sshd"'
-- name: Install MoSH
-  shell: 'pct exec {{ ct_template.id }} -- bash -c "dnf -y install mosh"'
+    net0: "name=eth0,gw={{ ct_template.gw }},ip={{ ct_template.ip }}/{{ ct_template.subnet }},bridge={{ ct_template.bridge }}"
+
+- name: Result of container's creation (DEBUG)
+  debug:
+    var: ct_res
+    verbosity: 3
+
+- name: Post-Installation
+  block:
+    - name: Get id from just created container
+      set_fact:
+        ct_id: "{{ ct_res.msg | regex_replace('^deployed VM ([0-9]+) .+', '\\1') }}"
+      when: ct_res.changed
+
+    - name: Get id from already created container
+      set_fact:
+        ct_id: "{{ ct_res.msg | regex_replace('^VM with hostname .+ already exists and has ID number ([0-9]+)$', '\\1') }}"
+      when: not ct_res.changed
+
+    - name: Get id from message in response (DEBUG)
+      debug:
+        msg: "Container id is {{ ct_id }}"
+        verbosity: 3
+
+    - name: Wait a bit before starting the newly created container
+      wait_for:
+        timeout: 10
+      when: ct_res.changed
+
+    - name: "Start container {{ ct_template.hostname }}"
+      proxmox:
+        hostname: "{{ ct_template.hostname }}"
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ proxmox_cluster_host }}"
+        node: "{{ proxmox_node }}"
+        pool: "{{ proxmox_pool }}"
+        state: started
+
+    - name: Install necessary software for remote access to fedora/centos based container
+      block:
+        - name: Wait a bit before installing remote access software
+          wait_for:
+            timeout: 5
+
+        - name: Check for latest package update
+          shell: 'pct exec {{ ct_id }} -- bash -c "dnf check-update"'
+          register: check_res
+          failed_when:
+            - check_res.rc != 0
+            - check_res.rc != 100
+
+        - name: Result of checking for updates (DEBUG)
+          debug:
+            var: check_res
+            verbosity: 3
+
+        - name: Install SSH server
+          shell: 'pct exec {{ ct_id }} -- bash -c "dnf -y install openssh-server"'
+          when: check_res.rc == 0 or check_res.rc == 100
+
+        - name: Enable and start SSH server
+          shell: 'pct exec {{ ct_id }} -- bash -c "systemctl enable sshd && systemctl start sshd"'
+          when: check_res.rc == 0 or check_res.rc == 100
+
+        - name: Install MoSH
+          shell: 'pct exec {{ ct_id }} -- bash -c "dnf -y install mosh"'
+          when: check_res.rc == 0 or check_res.rc == 100
+      when:
+        - ct_template.ostype in supported_os_type
+        - ct_template.osver >= supported_min_os_ver[ct_template.ostype]
+  when: not ct_res.failed

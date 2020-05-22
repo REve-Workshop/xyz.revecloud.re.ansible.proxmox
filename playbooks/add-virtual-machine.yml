@@ -5,8 +5,8 @@
     - name: Get Virtual Machine definition from file
       include_vars:
         file: "{{ vm_def_file }}"
-        name: vm_template
-    - name: "Create virtual machine in proxmox - Cluster {{ proxmox_cluster_host }} / Node {{ proxmox_node }}"
+        name: vm_tpl
+    - name: "Create virtual machine {{ vm_tpl.hostname }} in proxmox - Cluster {{ proxmox_cluster_host }} / Node {{ proxmox_node }}"
       include_role:
-        name: vm-managment
+        name: vm-management
         tasks_from: add-vm
