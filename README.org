@@ -4,7 +4,7 @@
   remove and edit containers and virtual machines in my
   infrastructure.
 * Content of the repository
-** COMMENT =playbooks/=
+** =playbooks/=
    Location of the ansible playbooks.
 
    Available playbooks are:
